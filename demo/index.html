@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <title>humanable-json &mdash; Demo</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="css/bootstrap-theme.min.css">-->
+    <style>
+        #result1 th {
+            background-color: #f5f5f5;
+            width: 150px;
+        }
+
+        #result1 table th[data-parent-type=array] {
+            text-align: center;
+            width: 40px;
+        }
+
+        #result1 table {
+            margin: 0px;
+            padding: 0;
+        }
+
+        #result3 dl.dl-horizontal dt {
+            width: 100px;
+        }
+
+        #result3 dl.dl-horizontal dd {
+            margin-left: 130px;
+        }
+
+        #result3 dl.dl-horizontal[data-type=array] dt {
+            width: 40px;
+        }
+
+        #result3 dl.dl-horizontal[data-type=array] dd {
+            margin-left: 70px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <h1>humanable-json</h1>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-4">
+            <pre>Enter JSON to make it <strong>humanable</strong></pre>
+        </div>
+        <div class="col-md-8">
+            <textarea  id="input" class="form-control" rows="15">{
+    "name": "json.human",
+    "numberTest": 102,
+    "nestedNumber": {
+        "daisy": 102
+    },
+    "description": "Convert\n JSON to human readable\r HTML",
+    "author": "Mariano Guerra <mariano @marianoguerra.org>",
+    "tags": ["DOM", "HTML", "JSON", "Pretty Print"],
+    "version": "0.1.0",
+    "main": "json.human.js",
+    "license" : "MIT",
+    "dependencies": {
+    "crel": "1.0.0"
+    },
+    "repository": {
+    "type": "git",
+    "url": "git://github.com/marianoguerra/json.human.js.git"
+    },
+    "bugs": {
+    "url": "http://github.com/marianoguerra/json.human.js/issues"
+    },
+    "contributors": [],
+    "config": {
+        "what?": "this object is just to show some extra stuff",
+        "how?": ["add json.human.js", "add json.human.css", "???", "profit!"],
+        "transformization?": ["transformize the css prefix", "change the css file"],
+        "integer": 42,
+        "float": 12.3,
+        "bool": true,
+        "emptyString": "",
+        "emptyArray": [],
+        "emptyObject": {},
+        "arrayWithMixed": [
+            { "type": "car", "name": "ferrari"},
+            123,
+            "fibre-options",
+            [3, 12, "a"]
+        ],
+        "htmlEntities": " <- trailing <em> & </em> and some html "
+    }
+}</textarea>
+            <hr/>
+            <div class="row">
+                <div class="col-md-12">
+                    <button id="process" type="button" class="btn btn-primary btn-lg">I want it humanable!</button>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="alertMessage" class="alert" role="alert"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-4">
+            <pre>opts.transform = 'table' (default)</pre>
+        </div>
+        <div class="col-md-8">
+            <div id="result1"></div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-4">
+            <pre>opts.transform = 'preformatted'</pre>
+        </div>
+        <div class="col-md-8">
+            <div id="result2"></div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-4">
+            <pre>opts.transform = 'list'</pre>
+        </div>
+        <div class="col-md-8">
+            <div id="result3"></div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-4">
+            <pre>opts.transform = 'json'</pre>
+        </div>
+        <div class="col-md-8">
+            <div id="result4">
+                <textarea class="form-control" rows="15"></textarea>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-md-4">
+            <pre>opts.transform = 'tagged'</pre>
+        </div>
+        <div class="col-md-8">
+            <div id="result5">
+                <textarea class="form-control" rows="15"></textarea>
+            </div>
+        </div>
+    </div>
+    <hr/>
+
+</div>
+
+<script src="../dist/humanable-json.js"></script>
+<script src="js/jquery-2.1.1.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        var $result1 = $('#result1');
+        var $result2 = $('#result2');
+        var $result3 = $('#result3');
+        var $result4 = $('#result4');
+        var $result5 = $('#result5');
+        var $textareaInput = $('#input');
+        var $btnProcess = $('#process');
+        var $alertMessage = $('#alertMessage');
+
+        function hideAlertMessage() {
+            $alertMessage.hide();
+        }
+        function showAlertMessage(type, message) {
+            $alertMessage.removeClass('alert-danger').removeClass('alert-warning').removeClass('alert-info').removeClass('alert-success');
+            $alertMessage.addClass('alert-' + type);
+            $alertMessage.text(message);
+            $alertMessage.show();
+        }
+        function parseInput() {
+            var json = {};
+            try {
+                json = JSON.parse($textareaInput.val());
+                showAlertMessage('success', 'We have the technology!');
+            } catch (e) {
+                showAlertMessage('danger', 'Invalid JSON object: ' + e.toString());
+            }
+            return json;
+        }
+        function processJSON() {
+            var json = parseInput();
+            var opt1 = { transform: 'table' };
+            $result1.html(humanable.parseJSON(json, opt1));
+            console.log(humanable.parseJSON(json, opt1));
+
+            var opt2 = { transform: 'preformatted' };
+            $result2.html(humanable.parseJSON(json, opt2));
+
+            var opt3 = { transform: 'list' };
+            $result3.html(humanable.parseJSON(json, opt3));
+
+            var opt4 = { transform: 'json' };
+            $result4.find('textarea').html(humanable.parseJSON(json, opt4));
+
+            var opt5 = { transform: 'tagged' };
+            $result5.find('textarea').html(humanable.parseJSON(json, opt5));
+        }
+
+        $btnProcess.on('click', function (e) {
+            processJSON();
+        });
+        processJSON();
+        hideAlertMessage();
+    });
+</script>
+</body>
+</html>
